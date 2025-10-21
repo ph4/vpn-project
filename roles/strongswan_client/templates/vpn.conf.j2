@@ -1,0 +1,36 @@
+connections {
+    ikev2-eap {
+        version = 2
+        remote_addrs = {{ server }}
+
+        local {
+            auth = eap
+            id = {{ id }}
+            eap_id = {{ id }}
+        }
+
+        remote {
+            auth = pubkey
+            id = @{{ server }}
+        }
+
+        vips = 0.0.0.0
+
+        children {
+            net {
+                remote_ts = 0.0.0.0/0
+                start_action = start
+            }
+        }
+
+        dpd_delay = 25
+    }
+}
+
+secrets {
+    eap-{{ id }} {
+        id = {{ id }}
+        secret = {{ secret }}
+    }
+}
+

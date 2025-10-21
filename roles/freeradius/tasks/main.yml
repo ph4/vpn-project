@@ -8,6 +8,7 @@
   apk:
     name:
       - freeradius
+      - freeradius-eap
     state: present
 
 - name: Include nftables
@@ -18,14 +19,14 @@
   template:
     src: clients.conf.j2
     dest: "{{ conf_root }}/clients.conf"
-    mode: "0600"
+    mode: "0640"
   notify: Restart freeradius
 
 - name: Create clients.d
   file:
     path: "{{ conf_root }}/clients.d"
     state: directory
-    mode: "0700"
+    mode: "0750"
 
 - name: List contents of clients.d
   command: ls -1 "{{ conf_root }}/clients.d"
@@ -50,5 +51,38 @@
   template:
     src: client.conf.j2
     dest: "{{ conf_root }}/clients.d/{{ item.inventory_hostname }}.conf"
-    mode: "0600"
+    mode: "0640"
+  notify: Restart freeradius
+
+- name: Deploy users
+  vars:
+    clients: "{{ groups['client'] | map('extract', hostvars) | list }}"
+  template:
+    src: users.j2
+    dest: "{{ conf_root }}/mods-config/files/authorize"
+    mode: "0640"
+
+- name: Copy EAP config
+  template:
+    src: eap.j2
+    dest: "{{ conf_root }}/mods-enabled/eap"
+    mode: "0640"
+  notify: Restart freeradius
+
+- name: Copy server cert
+  copy:
+    remote_src: true
+    src: "{{ cert_dir }}/{{ inventory_hostname }}.crt"
+    dest: "{{ conf_root }}/certs/server.crt"
+    owner: "radius"
+    mode: "0640"
+  notify: Restart freeradius
+
+- name: Copy server key
+  copy:
+    remote_src: true
+    src: "{{ cert_dir }}/host.key"
+    dest: "{{ conf_root }}/certs/server.key"
+    owner: "radius"
+    mode: "0640"
   notify: Restart freeradius

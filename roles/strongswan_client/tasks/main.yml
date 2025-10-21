@@ -1,0 +1,31 @@
+---
+- name: Install strongswan
+  apk:
+    name: strongswan
+    state: present
+
+- name: Copy ca.crt
+  file:
+    src: "{{ ca_dir }}/ca.crt"
+    dest: /etc/swanctl/x509ca/{{ inventory_hostname }}.crt
+    state: link
+    mode: "0600"
+
+- name: Copy strongswan.conf
+  when: false
+  template:
+    src: strongswan.conf.j2
+    dest: /etc/strongswan.conf
+    mode: "0600"
+  notify: Restart strongswan
+
+- name: Copy vpn.conf
+  vars:
+    id: "{{ ike_id }}"
+    server: "{{ ike_server }}"
+    secret: "{{ ike_secret }}"
+  template:
+    src: vpn.conf.j2
+    dest: /etc/swanctl/conf.d/vpn.conf
+    mode: "0600"
+  notify: Restart strongswan

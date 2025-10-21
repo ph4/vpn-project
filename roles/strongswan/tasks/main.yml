@@ -21,7 +21,7 @@
     radius_nas_id: "{{ inventory_hostname }}"
   template:
     src: strongswan.conf.j2
-    dest: /etc/strongswan.d/strongswan.conf
+    dest: /etc/strongswan.conf
     mode: "0600"
   notify: Restart strongswan
 
@@ -30,8 +30,31 @@
     id: "{{ inventory_hostname }}"
     addrs: "{{ node_subnet }}"
     dns: "{{ node_dns }}"
+    local_addrs: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
   template:
     src: vpn.conf.j2
     dest: /etc/swanctl/conf.d/vpn.conf
     mode: "0600"
   notify: Restart strongswan
+
+- name: Link CA cert
+  file:
+    src: "{{ ca_dir }}/ca.crt"
+    dest: /etc/swanctl/x509ca/{{ inventory_hostname }}.crt
+    state: link
+    mode: "0600"
+  notify: Restart strongswan
+
+- name: Link host cert
+  file:
+    src: "{{ cert_dir }}/{{ inventory_hostname }}.crt"
+    dest: /etc/swanctl/x509/{{ inventory_hostname }}.crt
+    state: link
+    mode: "0600"
+
+- name: Link host key
+  file:
+    src: "{{ cert_dir }}/host.key"
+    dest: /etc/swanctl/private/{{ inventory_hostname }}.key
+    state: link
+    mode: "0600"

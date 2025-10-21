@@ -1,5 +1,13 @@
 # Will merge with main nftables.conf
 table inet filter {
+    set vpn_subnets {
+        type ipv4_addr
+        flags interval
+        auto-merge
+        elements = {
+            {{ vpn_subnet }}
+        }
+    }
     chain input {
         # Allow strongSwan IKE/IPsec traffic
         # IKE (phase 1) negotiations
@@ -14,14 +22,15 @@ table inet filter {
     }
 
     chain forward {
-        ip saddr {{ vpn_subnet }} ip daddr {{ vpn_subnet }} drop;
-        ip saddr {{ vpn_subnet }} oifname "eth0" accept;
+        ip saddr @vpn_subnets ip daddr @vpn_subnets drop;
+        ip saddr @vpn_subnets oifname "eth0" accept;
+        ip daddr @vpn_subnets ct state {established, related} iifname "eth0" accept;
     }
 
     chain postrouting {
         type nat hook postrouting priority srcnat; policy accept;
 
-        ip saddr {{ vpn_subnet }} oifname "eth0" masquerade;
+        ip saddr @vpn_subnets oifname "eth0" masquerade;
     }
 
 }

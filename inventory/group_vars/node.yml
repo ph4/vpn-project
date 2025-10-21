@@ -2,7 +2,3 @@ node_subnet: 10.10.10.0/24
 node_dns:
   - 1.1.1.1
   - 1.0.0.1
-
-radius:
-  addr: freeradius
-  port: 1812

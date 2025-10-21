@@ -36,5 +36,11 @@ services:
       - "4501:4500/udp"
       - "51:50"
 
+  client1:
+    build: .
+    container_name: client
+    cap_add:
+      - NET_ADMIN
+
 volumes:
   postgres_data:

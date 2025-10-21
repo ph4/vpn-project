@@ -1,6 +1,22 @@
-plugins {
-    eap-radius {
-        load = yes
+# strongswan.conf - strongSwan configuration file
+#
+# Refer to the strongswan.conf(5) manpage for details
+#
+# Configuration changes should be made in the included files
+
+charon {
+    load_modular = yes
+    filelog {
+        main {
+            path = /var/log/strongswan.log
+            ike = 2
+            cfg = 2
+            eap = 3
+        }
+    }
+    plugins {
+        eap-radius {
+            load = yes
             servers {
                 primary {
                     address = {{ radius_addr }}
@@ -8,15 +24,10 @@ plugins {
                     secret = {{ radius_secret }}
                 }
             }
-        nas_identifier = {{ radius_nas_id }}
+            nas_identifier = {{ radius_nas_id }}
+        }
+        include strongswan.d/charon/*.conf
     }
-
-    eap-identity { load = yes }
-    kernel-netlink { load = yes }
-    socket-default { load = yes }
-    updown { load = yes }
-    x509 { load = yes }
-    openssl { load = yes }
-    pubkey { load = yes }
-    pem { load = yes }
 }
+
+include strongswan.d/*.conf

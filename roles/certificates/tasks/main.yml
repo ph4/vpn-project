@@ -23,7 +23,6 @@
     state: directory
     mode: "0711"
 
-
 - name: Install CA cert
   copy:
     content: "{{ ca_cert }}"
@@ -42,7 +41,6 @@
     path: "{{ cert_dir }}/host.key"
     size: 4096
     type: RSA
-    owner: 1000
     mode: "0600"
 
 - name: Generate host CSR

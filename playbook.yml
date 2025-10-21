@@ -22,3 +22,7 @@
 - hosts: freeradius
   roles:
     - freeradius
+
+- hosts: client
+  roles:
+    - strongswan_client

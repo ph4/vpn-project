@@ -1,0 +1,15 @@
+eap {
+    default_eap_type = peap
+    tls-config tls-common {
+        private_key_file = ${certdir}/server.key
+        certificate_file = ${certdir}/server.crt
+        ca_path = {{ ca_dir }}
+        tls_min_version = "1.2"
+    }
+    peap {
+        tls = tls-common
+        default_eap_type = mschapv2
+        virtual_server = "inner-tunnel"
+    }
+    mschapv2 { }
+}
