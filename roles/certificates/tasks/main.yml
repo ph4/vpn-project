@@ -1,0 +1,65 @@
+- name: Set facts
+  set_fact:
+    ca_dir: /usr/local/share/ca-certificates
+    cert_dir: /etc/ssl/certs
+
+- name: Generate CA cert on localhost
+  include_tasks:
+    file: ca.yml
+
+- name: Intall ca-certificates
+  apk:
+    name: ca-certificates
+    state: present
+
+- name: Pip install cryptography
+  pip:
+    name: cryptography
+    state: present
+
+- name: Create cert directory
+  file:
+    path: "{{ cert_dir }}"
+    state: directory
+    mode: "0711"
+
+
+- name: Install CA cert
+  copy:
+    content: "{{ ca_cert }}"
+    dest: "{{ ca_dir }}/ca.crt"
+    mode: "0600"
+  notify: Update CA
+
+- name: Check if host cert exists
+  stat:
+    path: "{{ cert_dir }}/{{ inventory_hostname }}.crt"
+  register: host_cert
+
+- name: Generate host private key for
+  when: not host_cert.stat.exists
+  community.crypto.openssl_privatekey:
+    path: "{{ cert_dir }}/host.key"
+    size: 4096
+    type: RSA
+    owner: 1000
+    mode: "0600"
+
+- name: Generate host CSR
+  when: not host_cert.stat.exists
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ cert_dir }}/host.key"
+    common_name: "{{ inventory_hostname }}"
+    use_common_name_for_san: true
+  register: host_csr
+
+- name: Generate host cert
+  when: not host_cert.stat.exists
+  delegate_to: localhost
+  community.crypto.x509_certificate_pipe:
+    csr_content: "{{ host_csr.csr }}"
+    ownca_path: "{{ ca_dir }}/ca.crt"
+    ownca_privatekey_path: "{{ ca_dir }}/ca.key"
+    provider: ownca
+  register: host_cert
+  notify: Save host cert

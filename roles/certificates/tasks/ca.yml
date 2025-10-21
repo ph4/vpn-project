@@ -1,0 +1,56 @@
+- name: Intall ca-certificates
+  delegate_to: localhost
+  run_once: true
+  apk:
+    name: ca-certificates
+    state: present
+
+- name: Chekc if CA cert exists
+  delegate_to: localhost
+  run_once: true
+  stat:
+    path: "{{ ca_dir }}/ca.crt"
+  register: ca_cert
+
+- name: Generate CA key
+  when: not ca_cert.stat.exists
+  delegate_to: localhost
+  run_once: true
+  community.crypto.openssl_privatekey:
+    path: "{{ ca_dir }}/ca.key"
+    size: 4096
+    type: RSA
+    mode: "0600"
+
+- name: CA CSR
+  when: not ca_cert.stat.exists
+  delegate_to: localhost
+  run_once: true
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ ca_dir }}/ca.key"
+    common_name: "Vpn project CA"
+    use_common_name_for_san: true
+    basic_constraints:
+      - CA:TRUE
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  register: ca_csr
+
+- name: Generate CA cert
+  when: not ca_cert.stat.exists
+  run_once: true
+  delegate_to: localhost
+  community.crypto.x509_certificate:
+    path: "{{ ca_dir }}/ca.crt"
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_content: "{{ lookup('file', ca_dir + '/ca.key') }}"
+    provider: selfsigned
+  notify: Update CA
+
+- name: Load CA cert
+  run_once: true
+  delegate_to: localhost
+  set_fact:
+    ca_cert: "{{ lookup('file', ca_dir + '/ca.crt') }}"

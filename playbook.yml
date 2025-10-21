@@ -6,6 +6,10 @@
         gather_subset:
           - network
 
+- hosts: all
+  roles:
+    - certificates
+
 - hosts: node
   tasks:
     - name: Gather facts

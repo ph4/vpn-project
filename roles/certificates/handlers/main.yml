@@ -1,0 +1,10 @@
+---
+- name: Update CA
+  command: update-ca-certificates
+  changed_when: true
+
+- name: Save host cert
+  copy:
+    content: "{{ host_cert.certificate }}"
+    dest: "{{ cert_dir }}/{{ inventory_hostname }}.crt"
+    mode: "0644"
