@@ -1,0 +1,7 @@
+# Will merge with main nftables.conf
+table inet filter {
+    chain input {
+        # Allow RADIUS access
+        udp dport { 1812, 1813 } accept;
+    }
+}

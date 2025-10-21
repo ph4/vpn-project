@@ -1,0 +1,37 @@
+---
+- name: Include nftables
+  vars:
+    vpn_subnet: "{{ node_subnet }}"
+  include_role:
+    name: nftables
+
+- name: Ensure radius secret is created
+  include_tasks:
+    file: radius_secret.yml
+
+- name: Install strongswan
+  apk:
+    name: strongswan
+    state: present
+
+- name: Copy strongswan.conf
+  vars:
+    radius_addr: "{{ radius.addr }}"
+    radius_port: "{{ radius.port }}"
+    radius_nas_id: "{{ inventory_hostname }}"
+  template:
+    src: strongswan.conf.j2
+    dest: /etc/strongswan.d/strongswan.conf
+    mode: "0600"
+  notify: Restart strongswan
+
+- name: Copy vpn.conf
+  vars:
+    id: "{{ inventory_hostname }}"
+    addrs: "{{ node_subnet }}"
+    dns: "{{ node_dns }}"
+  template:
+    src: vpn.conf.j2
+    dest: /etc/swanctl/conf.d/vpn.conf
+    mode: "0600"
+  notify: Restart strongswan

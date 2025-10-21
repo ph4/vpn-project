@@ -1,0 +1,20 @@
+- hosts: localhost
+  become: false
+  tasks:
+    - name: Gather facts
+      setup:
+        gather_subset:
+          - network
+
+- hosts: node
+  tasks:
+    - name: Gather facts
+      setup:
+        gather_subset:
+          - network
+  roles:
+    - strongswan
+
+- hosts: freeradius
+  roles:
+    - freeradius

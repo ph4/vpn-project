@@ -1,0 +1,27 @@
+# Will merge with main nftables.conf
+table inet filter {
+    chain input {
+        # Allow strongSwan IKE/IPsec traffic
+        # IKE (phase 1) negotiations
+        udp dport 500 accept;
+        # NAT-T negotiations
+        udp dport 4500 accept;
+        # Encapsulated Security Payload (ESP) is the actual tunnel traffic
+        # The `meta l4proto esp accept` rule is crucial for allowing encrypted traffic.
+        # It lets the kernel know that this traffic is part of an IPsec tunnel.
+        meta l4proto esp accept;
+
+    }
+
+    chain forward {
+        ip saddr {{ vpn_subnet }} ip daddr {{ vpn_subnet }} drop;
+        ip saddr {{ vpn_subnet }} oifname "eth0" accept;
+    }
+
+    chain postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+
+        ip saddr {{ vpn_subnet }} oifname "eth0" masquerade;
+    }
+
+}

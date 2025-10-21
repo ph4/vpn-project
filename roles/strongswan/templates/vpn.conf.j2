@@ -1,0 +1,44 @@
+connections {
+
+    ikev2-eap {
+        version = 2
+        local_addrs = %any
+        remote_addrs = %any
+
+        local {
+            auth = psk
+            id = @{{ id }}
+        }
+        remote {
+            auth = eap-radius
+            eap_id = %identity
+        }
+
+        children {
+            net {
+                local_ts = 0.0.0.0/0
+                dpd_action = clear
+                dpd_delay = 300
+                pools = vpnpool
+                updown = /usr/lib/ipsec/_updown
+            }
+        }
+
+        auto = add
+    }
+}
+
+pools {
+    vpnpool {
+        addrs = {{ addrs }}
+        dns = {{ ",".join(dns) }}
+    }
+}
+
+secrets {
+    ike-psk-secret {
+        id = @{{ id }}
+        secret = psk123
+    }
+}
+

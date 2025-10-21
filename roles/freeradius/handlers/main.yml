@@ -1,0 +1,6 @@
+---
+- name: Restart freeradius
+  service:
+    name: radiusd
+    state: restarted
+    enabled: true

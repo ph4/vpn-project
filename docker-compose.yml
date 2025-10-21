@@ -1,0 +1,40 @@
+services:
+  ansible:
+    build:
+      context: .
+      dockerfile: ansible.Dockerfile
+
+    container_name: ansible
+    volumes:
+      - .:/app
+      - ./ssh_key:/app/ssh_key
+
+  radius:
+    build: .
+    cap_add:
+      - NET_ADMIN
+    container_name: radius
+    privileged: true
+
+  node1:
+    build: .
+    container_name: node1
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "500:500/udp"
+      - "4500:4500/udp"
+      - "50:50"
+
+  node2:
+    build: .
+    container_name: node2
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "501:500/udp"
+      - "4501:4500/udp"
+      - "51:50"
+
+volumes:
+  postgres_data:

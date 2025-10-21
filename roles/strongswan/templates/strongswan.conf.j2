@@ -1,0 +1,22 @@
+plugins {
+    eap-radius {
+        load = yes
+            servers {
+                primary {
+                    address = {{ radius_addr }}
+                    port = {{ radius_port }}
+                    secret = {{ radius_secret }}
+                }
+            }
+        nas_identifier = {{ radius_nas_id }}
+    }
+
+    eap-identity { load = yes }
+    kernel-netlink { load = yes }
+    socket-default { load = yes }
+    updown { load = yes }
+    x509 { load = yes }
+    openssl { load = yes }
+    pubkey { load = yes }
+    pem { load = yes }
+}

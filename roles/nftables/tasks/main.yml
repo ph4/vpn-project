@@ -1,0 +1,23 @@
+---
+- name: Install nftables
+  apk:
+    name: nftables
+    state: present
+
+- name: Add controller ip to the list of allowed ssh addresses
+  set_fact:
+    ssh_admin_addrs: "{{ ssh_admin_addrs + [hostvars['localhost']['ansible_default_ipv4']['address']] }}"
+
+- name: Copy nftables.conf
+  template:
+    src: nftables.nft.j2
+    dest: /etc/nftables.d/nftables.nft
+    mode: "0600"
+  notify: Restart nftables
+
+- name: Copy rules.nft
+  template:
+    src: rules.nft.j2
+    dest: /etc/nftables.d/rules.nft
+    mode: "0600"
+  notify: Restart nftables

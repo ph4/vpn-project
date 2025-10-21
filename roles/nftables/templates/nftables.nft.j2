@@ -1,0 +1,33 @@
+#!/usr/sbin/nft -f
+
+table inet filter {
+    set ssh_admin_addrs {
+        type ipv4_addr
+        flags interval
+        auto-merge
+        elements = {
+            {% for addr in ssh_admin_addrs %} {{ addr }}, {% endfor %}
+        }
+    }
+
+    chain input {
+        type filter hook input priority filter; policy drop;
+
+        # Allow connections that are part of an existing session
+        ct state {established, related} accept;
+
+        # Allow connections from the loopback interface
+        iif "lo" accept;
+
+        # Allow ICMP for network diagnostics
+        ip protocol icmp accept;
+        ip6 nexthdr icmpv6 accept;
+
+        # Allow incoming SSH connections
+        ip saddr @ssh_admin_addrs tcp dport 22 accept;
+    }
+
+    chain forward {
+        type filter hook forward priority filter; policy drop;
+    }
+}

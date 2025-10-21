@@ -1,0 +1,9 @@
+ssh_admin_addrs:
+  - 127.0.0.1
+
+radius:
+  addr: freeradius
+  port: 1812
+  database:
+    user: radius
+    name: radius
