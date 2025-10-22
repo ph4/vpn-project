@@ -1,4 +1,12 @@
 services:
+  postgres:
+    container_name: postgres
+    build:
+      context: .
+      dockerfile: postgres.Dockerfile
+    cap_add:
+      - NET_ADMIN
+
   ansible:
     build:
       context: .

@@ -1,6 +1,0 @@
-ssh_admin_addrs:
-  - 127.0.0.1
-
-radius:
-  addr: radius
-  port: 1812

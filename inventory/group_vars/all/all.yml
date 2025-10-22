@@ -1,0 +1,13 @@
+ssh_admin_addrs:
+  - 127.0.0.1
+
+postgres:
+  host: postgres
+  port: 5432
+
+radius:
+  addr: radius
+  port: 1812
+  database:
+    user: radius
+    name: main

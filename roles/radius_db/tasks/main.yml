@@ -1,0 +1,69 @@
+---
+- name: Create database
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ radius.database.name }}"
+    owner: "postgres"
+    state: present
+  register: db_created
+
+- name: Create schema
+  become: true
+  become_user: postgres
+  when: db_created.changed
+  postgresql_query:
+    db: "{{ radius.database.name }}"
+    query: "{{ lookup('template', 'schema.sql') }}"
+
+- name: Create user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ radius.database.user }}"
+    password: "{{ radius_db_password }}"
+    role_attr_flags: NOSUPERUSER
+    state: present
+  register: user_created
+
+- name: Setup user
+  become: true
+  become_user: postgres
+  when: user_created.changed
+  postgresql_query:
+    db: "{{ radius.database.name }}"
+    query: "{{ lookup('template', 'setup.sql') }}"
+
+- name: Print ansible_default_ipv4
+  debug:
+    msg: "{{ hostvars['radius'].ansible_default_ipv4 }}"
+
+- name: Allow remote access for radius
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_pg_hba:
+    dest: "{{ db_root }}/pg_hba.conf"
+    contype: hostssl
+    databases: "{{ radius.database.name }}"
+    users: "{{ radius.database.user }}"
+    address: "{{ hostvars['radius'].ansible_default_ipv4.address }}/32"
+    method: scram-sha-256
+  notify: Reload postgres
+
+- name: Insert users
+  become: true
+  become_user: postgres
+  loop: "{{ groups['client'] }}"
+  loop_control:
+    loop_var: user
+  vars:
+    client_name: "{{ hostvars[user].ike_id }}"
+    client_secret: "{{ hostvars[user].ike_secret }}"
+  community.postgresql.postgresql_query:
+    db: "{{ radius.database.name }}"
+    query: |
+      INSERT INTO radcheck (UserName, Attribute, op, Value)
+      SELECT '{{ client_name }}', 'Cleartext-Password', ':=', '{{ client_secret }}'
+      WHERE NOT EXISTS (
+        SELECT 1 FROM radcheck WHERE UserName = '{{ client_name }}' AND Attribute = 'Cleartext-Password'
+      );

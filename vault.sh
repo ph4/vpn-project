@@ -50,7 +50,7 @@ run() {
     ansible-vault view --vault-id "$VAULT_NAME@$VAULT_PASS_FILE" inventory/password_check
 
     # Files ending with .vault.yml are encrypted
-    find -name "*.vault.yml" | while read -r file; do
+    find -name "*vault.yml" | while read -r file; do
         echo "$file"
         if [[ -f "$file" ]]; then
             "$1" "$file"

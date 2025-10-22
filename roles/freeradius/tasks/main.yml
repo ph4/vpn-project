@@ -9,6 +9,8 @@
     name:
       - freeradius
       - freeradius-eap
+      - freeradius-sql
+      - freeradius-postgresql
     state: present
 
 - name: Include nftables
@@ -54,14 +56,6 @@
     mode: "0640"
   notify: Restart freeradius
 
-- name: Deploy users
-  vars:
-    clients: "{{ groups['client'] | map('extract', hostvars) | list }}"
-  template:
-    src: users.j2
-    dest: "{{ conf_root }}/mods-config/files/authorize"
-    mode: "0640"
-
 - name: Copy EAP config
   template:
     src: eap.j2
@@ -84,5 +78,19 @@
     src: "{{ cert_dir }}/host.key"
     dest: "{{ conf_root }}/certs/server.key"
     owner: "radius"
+    mode: "0600"
+  notify: Restart freeradius
+
+- name: Copy sql config
+  template:
+    src: sql.j2
+    dest: "{{ conf_root }}/mods-enabled/sql"
     mode: "0640"
+  notify: Restart freeradius
+
+- name: Enable sql in radiusd.conf
+  lineinfile:
+    path: "{{ conf_root }}/radiusd.conf"
+    insertafter: "^\\s*instantiate\\s*{"
+    line: "\tsql"
   notify: Restart freeradius

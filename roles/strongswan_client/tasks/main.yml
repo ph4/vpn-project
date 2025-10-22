@@ -4,10 +4,10 @@
     name: strongswan
     state: present
 
-- name: Copy ca.crt
+- name: Symlink ca.crt
   file:
     src: "{{ ca_dir }}/ca.crt"
-    dest: /etc/swanctl/x509ca/{{ inventory_hostname }}.crt
+    dest: /etc/swanctl/x509ca/ca.crt
     state: link
     mode: "0600"
 

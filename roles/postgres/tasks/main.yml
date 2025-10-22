@@ -1,0 +1,101 @@
+---
+- name: Install nftables
+  include_role:
+    name: nftables
+
+- name: Install postgres
+  apk:
+    name:
+      - sudo # for become: true
+      - postgresql15
+      - postgresql15-contrib
+      - postgresql15-client
+      - postgresql15-openrc
+    state: present
+
+- name: install psycopg2
+  pip:
+    name: psycopg2-binary
+    state: present
+
+- name: Set facts
+  set_fact:
+    db_root: "/var/lib/postgresql/15/data"
+
+- name: Check if the database is already initialized
+  stat:
+    path: "{{ db_root }}/PG_VERSION"
+  register: db_initialized
+
+- name: Start postgres to initialize the database
+  when: not db_initialized.stat.exists
+  service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Set listen_addresses
+  lineinfile:
+    path: "{{ db_root }}/postgresql.conf"
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '*'"
+    state: present
+  notify: Reload postgres
+
+- name: Enable ssl in postgresql.conf
+  become: true
+  become_user: postgres
+  lineinfile:
+    path: "{{ db_root }}/postgresql.conf"
+    regexp: "^#?ssl\\s*="
+    line: "ssl = on"
+    state: present
+  notify: Reload postgres
+
+- name: Copy ssl certificate
+  copy:
+    remote_src: true
+    src: "{{ cert_dir }}/{{ inventory_hostname }}.crt"
+    dest: "{{ db_root }}/server.crt"
+    owner: "postgres"
+    mode: "0640"
+  notify: Restart postgres
+
+- name: Copy ssl key
+  copy:
+    remote_src: true
+    src: "{{ cert_dir }}/host.key"
+    dest: "{{ db_root }}/server.key"
+    owner: "postgres"
+    mode: "0600"
+  notify: Restart postgres
+
+- name: Set ssl_cert_file
+  lineinfile:
+    path: "{{ db_root }}/postgresql.conf"
+    regexp: "^[#]?ssl_cert_file\\s*="
+    line: "ssl_cert_file = 'server.crt'"
+    state: present
+  notify: Reload postgres
+
+- name: Set ssl_key_file
+  lineinfile:
+    path: "{{ db_root }}/postgresql.conf"
+    regexp: "^[#]?ssl_key_file\\s*="
+    line: "ssl_key_file = 'server.key'"
+    state: present
+  notify: Reload postgres
+
+- name: Set ssl_ca_file
+  lineinfile:
+    path: "{{ db_root }}/postgresql.conf"
+    regexp: "^[#]?ssl_ca_file\\s*="
+    line: "ssl_ca_file = '{{ ca_dir }}/ca.crt'"
+    state: present
+  notify: Reload postgres
+
+- name: Start postgres if it is not running
+  service:
+    name: postgresql
+    state: started
+    enabled: true

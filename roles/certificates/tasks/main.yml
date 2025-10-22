@@ -27,7 +27,7 @@
   copy:
     content: "{{ ca_cert }}"
     dest: "{{ ca_dir }}/ca.crt"
-    mode: "0600"
+    mode: "0644"
   notify: Update CA
 
 - name: Check if host cert exists
@@ -41,7 +41,7 @@
     path: "{{ cert_dir }}/host.key"
     size: 4096
     type: RSA
-    mode: "0600"
+    mode: "0640"
 
 - name: Generate host CSR
   when: not host_cert.stat.exists
