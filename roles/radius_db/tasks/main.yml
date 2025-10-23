@@ -16,7 +16,7 @@
     db: "{{ radius.database.name }}"
     query: "{{ lookup('template', 'schema.sql') }}"
 
-- name: Create user
+- name: Create radius user
   become: true
   become_user: postgres
   postgresql_user:
@@ -25,6 +25,38 @@
     role_attr_flags: NOSUPERUSER
     state: present
   register: user_created
+
+- name: Create modifying user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ database.user }}"
+    password: "{{ database_password }}"
+    role_attr_flags: NOSUPERUSER
+    state: present
+  register: access_user_created
+
+- name: Grant permissions to modifying user
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    db: "{{ radius.database.name }}"
+    privs: SELECT,INSERT,UPDATE
+    type: table
+    objs: radcheck
+    roles: "{{ database.user }}"
+    state: present
+
+- name: Grant permissions to sequence
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    db: "{{ radius.database.name }}"
+    privs: USAGE,SELECT
+    type: sequence
+    objs: radcheck_id_seq
+    roles: "{{ database.user }}"
+    state: present
 
 - name: Setup user
   become: true
@@ -45,8 +77,8 @@
     dest: "{{ db_root }}/pg_hba.conf"
     contype: hostssl
     databases: "{{ radius.database.name }}"
-    users: "{{ radius.database.user }}"
-    address: "{{ hostvars['radius'].ansible_default_ipv4.address }}/32"
+    users: "{{ radius.database.user }},{{ database.user }}"
+    address: 0.0.0.0/0
     method: scram-sha-256
   notify: Reload postgres
 

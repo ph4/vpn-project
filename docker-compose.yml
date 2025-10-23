@@ -6,6 +6,19 @@ services:
       dockerfile: postgres.Dockerfile
     cap_add:
       - NET_ADMIN
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: backend
+      target: development
+    container_name: backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "3000:3000"
+
 
   ansible:
     build:

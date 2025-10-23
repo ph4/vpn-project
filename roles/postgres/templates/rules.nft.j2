@@ -1,5 +1,5 @@
 table inet filter {
     chain input {
-        tcp dport {{ postgres.port }} accept;
+        tcp dport 5432 accept;
     }
 }

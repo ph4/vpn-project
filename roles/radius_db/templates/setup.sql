@@ -12,6 +12,11 @@
  */
 
 /*
+ *  Create default administrator for RADIUS
+ */
+CREATE USER radius WITH PASSWORD '{{ radius_db_password }}';
+
+/*
  * The server can read any table in SQL
  */
 GRANT SELECT ON radcheck TO radius;

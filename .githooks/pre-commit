@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo nounset
+ENCRYPTED_PATTERN="^\$ANSIBLE_VAULT"
+FILE_PATTERN="(\.|^)vault\.yml$"
+
+check_encrypted() {
+  local file=$1
+  
+  if ! git show :"$file" | grep --quiet "$ENCRYPTED_PATTERN"; then
+    echo "Located a vault file that should be encrypted:
+> ${file}
+"
+    echo "Please un-stage this file. If you are adding or updating this file, please encrypt it before staging."
+    echo "Alternatively, you can git checkout the latest encrypted version of the file before committing.
+"
+    echo "Remember... Only YOU Can Prevent Secret Leakage."
+    exit 1;
+  fi;
+}
+
+echo "Running pre-commit checks..."
+for file in $(git diff --cached --name-only | grep -E "$FILE_PATTERN"); do
+  check_encrypted "$file"
+done

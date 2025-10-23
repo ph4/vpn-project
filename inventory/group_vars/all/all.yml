@@ -5,9 +5,15 @@ postgres:
   host: postgres
   port: 5432
 
+database:
+  host: "{{ postgres.host }}"
+  port: "{{ postgres.port }}"
+  user: vpn
+  name: vpn
+
 radius:
   addr: radius
   port: 1812
   database:
     user: radius
-    name: main
+    name: radius

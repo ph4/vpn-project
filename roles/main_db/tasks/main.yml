@@ -1,0 +1,52 @@
+---
+- name: Create database
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ database.name }}"
+    owner: "postgres"
+    state: present
+  register: db_created
+
+- name: Create user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ database.user }}"
+    password: "{{ database_password }}"
+    role_attr_flags: NOSUPERUSER
+    state: present
+  register: user_created
+
+- name: Give privileges to user
+  become: true
+  become_user: postgres
+  postgresql_privs:
+    db: "{{ database.name }}"
+    privs: ALL
+    type: database
+    roles: "{{ database.user }}"
+    state: present
+
+- name: Allow user acces to public schema
+  become: true
+  become_user: postgres
+  postgresql_privs:
+    db: "{{ database.name }}"
+    privs: USAGE,CREATE
+    type: schema
+    objs: "public"
+    roles: "{{ database.user }}"
+    state: present
+
+- name: Allow remote access for radius
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_pg_hba:
+    dest: "{{ db_root }}/pg_hba.conf"
+    contype: hostssl
+    databases: "{{ database.name }}"
+    users: "{{ database.user }}"
+    address: "0.0.0.0/0"
+    method: scram-sha-256
+  notify: Reload postgres
