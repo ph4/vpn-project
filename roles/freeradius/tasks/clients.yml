@@ -1,0 +1,39 @@
+---
+- name: Copy clients.conf
+  template:
+    src: clients.conf.j2
+    dest: "{{ conf_root }}/clients.conf"
+    mode: "0640"
+  notify: Restart freeradius
+
+- name: Create clients.d
+  file:
+    path: "{{ conf_root }}/clients.d"
+    state: directory
+    mode: "0750"
+
+- name: List contents of clients.d
+  command: ls -1 "{{ conf_root }}/clients.d"
+  changed_when: false
+  register: contents
+
+- name: Clean clients.d
+  loop: "{{ contents.stdout_lines }}"
+  when: item not in groups['node']
+  file:
+    path: "{{ conf_root }}/clients.d/{{ item }}.conf"
+    state: absent
+
+- name: Deploy clients
+  vars:
+    client: "{{ item.inventory_hostname }}"
+    ipaddr: "{{ item.ansible_default_ipv4.address }}"
+    secret: "{{ hostvars[item.inventory_hostname].radius_secret }}"
+  loop: "{{ nodes }}"
+  loop_control:
+    label: "{{ item.inventory_hostname }}"
+  template:
+    src: client.conf.j2
+    dest: "{{ conf_root }}/clients.d/{{ item.inventory_hostname }}.conf"
+    mode: "0640"
+  notify: Restart freeradius
