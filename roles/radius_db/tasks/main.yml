@@ -16,27 +16,7 @@
     db: "{{ radius.database.name }}"
     query: "{{ lookup('template', 'schema.sql') }}"
 
-- name: Create radius user
-  become: true
-  become_user: postgres
-  postgresql_user:
-    name: "{{ radius.database.user }}"
-    password: "{{ radius_db_password }}"
-    role_attr_flags: NOSUPERUSER
-    state: present
-  register: user_created
-
-- name: Create modifying user
-  become: true
-  become_user: postgres
-  postgresql_user:
-    name: "{{ database.user }}"
-    password: "{{ database_password }}"
-    role_attr_flags: NOSUPERUSER
-    state: present
-  register: access_user_created
-
-- name: Grant permissions to modifying user
+- name: Grant permissions on radcheck table to main user
   become: true
   become_user: postgres
   community.postgresql.postgresql_privs:
@@ -47,7 +27,7 @@
     roles: "{{ database.user }}"
     state: present
 
-- name: Grant permissions to sequence
+- name: Grant permissions to radcheck_id_seq sequence to main user
   become: true
   become_user: postgres
   community.postgresql.postgresql_privs:
@@ -58,10 +38,18 @@
     roles: "{{ database.user }}"
     state: present
 
-- name: Setup user
+- name: Check if the radius user exists
   become: true
   become_user: postgres
-  when: user_created.changed
+  community.postgresql.postgresql_query:
+    db: "{{ radius.database.name }}"
+    query: "SELECT 1 FROM pg_roles WHERE rolname = '{{ radius.database.user }}'"
+  register: user_exists
+
+- name: Setup radius user
+  become: true
+  become_user: postgres
+  when: user_exists.rowcount == 0
   postgresql_query:
     db: "{{ radius.database.name }}"
     query: "{{ lookup('template', 'setup.sql') }}"

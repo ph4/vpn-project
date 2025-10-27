@@ -40,7 +40,7 @@
     regexp: "^#?listen_addresses\\s*="
     line: "listen_addresses = '*'"
     state: present
-  notify: Reload postgres
+  notify: Restart postgres
 
 - name: Enable ssl in postgresql.conf
   become: true
@@ -93,9 +93,3 @@
     line: "ssl_ca_file = '{{ ca_dir }}/ca.crt'"
     state: present
   notify: Reload postgres
-
-- name: Start postgres if it is not running
-  service:
-    name: postgresql
-    state: started
-    enabled: true

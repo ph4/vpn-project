@@ -22,8 +22,8 @@
 - hosts: database
   roles:
     - postgres
-    - radius_db
     - main_db
+    - radius_db
 
 - hosts: freeradius
   roles:

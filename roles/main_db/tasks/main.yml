@@ -39,7 +39,7 @@
     roles: "{{ database.user }}"
     state: present
 
-- name: Allow remote access for radius
+- name: Allow remote access for database user
   become: true
   become_user: postgres
   community.postgresql.postgresql_pg_hba:
