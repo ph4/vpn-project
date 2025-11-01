@@ -1,0 +1,130 @@
+@use 'variables' as *;
+
+// === Layout ===
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $color-bg;
+  font-family: $font-family-base;
+}
+
+.centered-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+}
+
+// === Cards ===
+.card {
+  background: white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  padding: $spacing-lg;
+}
+
+// === Buttons ===
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s, opacity 0.3s;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.btn-primary {
+  @extend .btn;
+  background: $color-primary;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  @extend .btn;
+  background: $color-secondary;
+  color: $color-text;
+
+  &:hover {
+    background: $color-secondary-hover;
+  }
+}
+
+.btn-danger {
+  @extend .btn;
+  background: $color-danger;
+  color: white;
+
+  &:hover {
+    background: $color-danger-hover;
+  }
+}
+
+// === Forms ===
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+label {
+  font-weight: 500;
+  color: $color-text-light;
+  font-size: $font-size-sm;
+}
+
+input, select {
+  padding: 0.75rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+}
+
+// === Typography ===
+$font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+
+body {
+  font-family: $font-inter;
+}
+
+h1, h2, h3 {
+  color: $color-text;
+  margin: 0 0 $spacing-md;
+}
+
+
+.text-center {
+  text-align: center;
+}
+
+.error-message {
+  padding: $spacing-sm;
+  background: $color-error-bg;
+  color: $color-error-text;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+}
+

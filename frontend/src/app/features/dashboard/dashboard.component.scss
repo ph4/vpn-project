@@ -1,0 +1,110 @@
+@use 'variables' as *;
+
+.dashboard {
+  min-height: 100vh;
+  background: $color-bg;
+}
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-xl;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.stat-card {
+  background: $color-primary-bg;
+  padding: $spacing-xl;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+
+  h3 {
+    margin: 0 0 $spacing-md;
+    font-size: $font-size-md;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: $color-text;
+    padding: 0 0 $spacing-xl;
+  }
+
+  .stat-label {
+    color: $color-text-light;
+    margin: 0;
+  }
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  background: $color-border;
+  color: $color-text-secondary;
+
+  &.active {
+    background: $color-success;
+    color: $color-bg;
+  }
+}
+
+.vpn-list {
+  background: $color-bg;
+  padding: $spacing-xl;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+
+  h2 {
+    margin: 0 0 $spacing-lg;
+    font-size: $font-size-xl;
+    color: $color-text-primary;
+  }
+
+  .vpn-grid {
+    display: grid;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+  }
+
+  .vpn-card {
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    padding: 1.5rem;
+
+    .vpn-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-md;
+
+      h3 {
+        margin: 0;
+        font-size: $font-size-lg;
+        color: $color-text-primary;
+      }
+    }
+
+    .vpn-details p {
+      margin: 0.5rem 0;
+      color: $color-text-secondary;
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.25rem;
+  color: $color-text-secondary;
+}

@@ -12,7 +12,6 @@ import { User } from '../user/user.entity';
 export interface JwtPayload {
   sub: string;
   email: string;
-  username: string;
   role: string;
 }
 
@@ -24,10 +23,8 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async register(email: string, password: string, username: string) {
-    const existingUser =
-      (await this.userService.findByEmail(email)) ||
-      (await this.userService.findByUsername(username));
+  async register(email: string, password: string) {
+    const existingUser = await this.userService.findByEmail(email);
 
     if (existingUser) {
       throw new ConflictException('User already exists');
@@ -37,7 +34,6 @@ export class AuthService {
 
     const user = await this.userService.create({
       email,
-      username,
       password_hash,
       role: 'client',
     });
@@ -70,7 +66,6 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        username: user.username,
         role: user.role,
       },
       tokens: await this.generateTokens(user),
@@ -81,7 +76,6 @@ export class AuthService {
     const payload: JwtPayload = {
       sub: user.id.toString(),
       email: user.email,
-      username: user.username,
       role: user.role,
     };
 

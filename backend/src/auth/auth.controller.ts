@@ -4,7 +4,6 @@ import { AuthService } from './auth.service';
 class RegisterDto {
   email: string;
   password: string;
-  username: string;
 }
 
 class LoginDto {
@@ -22,7 +21,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto.email, dto.password, dto.username);
+    return this.authService.register(dto.email, dto.password);
   }
 
   @Post('login')

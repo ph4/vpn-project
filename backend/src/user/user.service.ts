@@ -14,10 +14,6 @@ export class UserService {
     return this.userRepo.findOne({ where: { email } });
   }
 
-  findByUsername(username: string) {
-    return this.userRepo.findOne({ where: { username } });
-  }
-
   findById(id: number) {
     return this.userRepo.findOne({ where: { id } });
   }

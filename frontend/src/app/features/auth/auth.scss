@@ -1,0 +1,56 @@
+@use 'variables' as *;
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $gradient-primary;
+  padding: $spacing-md;
+}
+
+.auth-container {
+  background: $color-bg;
+  padding: $spacing-xl;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-width: 400px;
+
+  h1 {
+    margin: 0 0 $spacing-xl;
+    font-size: $font-size-lg;
+    color: $color-text-primary;
+    text-align: center;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  .auth-link {
+    text-align: center;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+
+    a {
+      color: $color-primary;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .error-message {
+    background: rgba(255, 0, 0, 0.1);
+    color: #d00;
+    padding: 0.75rem;
+    border-radius: $radius-md;
+    text-align: center;
+  }
+}

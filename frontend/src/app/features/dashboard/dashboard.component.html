@@ -1,0 +1,58 @@
+<div class="dashboard">
+  <app-header></app-header>
+
+  <main class="content">
+    @if (loading()) {
+      <div class="loading">Loading...</div>
+    } @else {
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Active Subscription</h3>
+          @if (activeSubscription()) {
+            <div class="stat-value">{{ activeSubscription()!.status }}</div>
+            <p class="stat-label">Expires: {{ activeSubscription()!.end_date | date }}</p>
+          } @else {
+            <div class="stat-value">None</div>
+            <a routerLink="/subscriptions" class="btn-primary">Get Subscription</a>
+          }
+        </div>
+
+        <div class="stat-card">
+          <h3>VPN Configurations</h3>
+          <div class="stat-value">{{ vpnConfigurations().length }}</div>
+          <p class="stat-label">Active: {{ activeConfigs() }} / {{ maxConfigs() }}</p>
+        </div>
+      </div>
+
+      @if (vpnConfigurations().length > 0) {
+        <section class="vpn-list">
+          <h2>Recent VPN Configurations</h2>
+          <div class="vpn-grid">
+            @for (config of vpnConfigurations().slice(0, 3); track config.id) {
+              <div class="vpn-card">
+                <div class="vpn-header">
+                  <h3>{{ config.description }}</h3>
+                  <span class="status-badge" [class]="config.status">
+                    {{ config.status }}
+                  </span>
+                </div>
+                <div class="vpn-details">
+                  <p><strong>Username:</strong> {{ config.username }}</p>
+                  <p>
+                    <strong>Last IP:</strong>
+                    {{ config.last_connection_ip || 'Never connected' }}
+                  </p>
+                  <p>
+                    <strong>Last Connection:</strong>
+                    {{ config.last_connection_at | date: 'medium' }}
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+          <a routerLink="/vpn-configurations" class="btn-secondary">View All</a>
+        </section>
+      }
+    }
+  </main>
+</div>
